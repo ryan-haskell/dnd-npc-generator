@@ -1,10 +1,10 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
+import Character exposing (Character)
 import ElmLand.Page exposing (Page)
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
-import Npc exposing (Npc)
 import Random
 import View exposing (View)
 
@@ -25,13 +25,13 @@ page =
 
 type alias Model =
     { seed : Int
-    , npc : Maybe Npc
+    , character : Maybe Character
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { npc = Nothing, seed = 0 }
+    ( { character = Nothing, seed = 0 }
     , Random.generate ElmGeneratedSeed (Random.int 0 Random.maxInt)
     )
 
@@ -56,7 +56,7 @@ update msg model =
             )
 
         UserSubmittedSeedInput ->
-            ( { model | npc = Just (generateNpcFromSeed model.seed) }
+            ( { model | character = Just (generateCharacterFromSeed model.seed) }
             , Cmd.none
             )
 
@@ -70,20 +70,20 @@ update msg model =
 
         ElmGeneratedSeed seed ->
             let
-                npc : Npc
-                npc =
-                    generateNpcFromSeed seed
+                character : Character
+                character =
+                    generateCharacterFromSeed seed
             in
-            ( { model | seed = seed, npc = Just npc }
+            ( { model | seed = seed, character = Just character }
             , Cmd.none
             )
 
 
-generateNpcFromSeed : Int -> Npc
-generateNpcFromSeed seed =
+generateCharacterFromSeed : Int -> Character
+generateCharacterFromSeed seed =
     Random.initialSeed seed
-        |> Random.step (Npc.generator seed)
-        |> (\( npc, _ ) -> npc)
+        |> Random.step (Character.generator seed)
+        |> (\( character, _ ) -> character)
 
 
 
@@ -101,21 +101,23 @@ subscriptions model =
 
 view : Model -> View Msg
 view model =
-    { title = "Pages.Home_"
+    { title = "Character Generator"
     , body =
-        [ Html.form [ Html.Events.onSubmit UserSubmittedSeedInput ]
-            [ Html.input
-                [ Html.Events.onInput UserUpdatedSeedInput
-                , Html.Attributes.type_ "number"
-                , Html.Attributes.value (String.fromInt model.seed)
+        [ Html.div [ Html.Attributes.class "controls" ]
+            [ Html.form [ Html.Events.onSubmit UserSubmittedSeedInput ]
+                [ Html.input
+                    [ Html.Events.onInput UserUpdatedSeedInput
+                    , Html.Attributes.type_ "number"
+                    , Html.Attributes.value (String.fromInt model.seed)
+                    ]
+                    []
+                , Html.button [] [ Html.text "Generate" ]
                 ]
-                []
-            , Html.button [] [ Html.text "Generate" ]
+            , Html.button [ Html.Events.onClick UserClickedRandom ] [ Html.text "Random" ]
             ]
-        , Html.button [ Html.Events.onClick UserClickedRandom ] [ Html.text "Random" ]
-        , case model.npc of
-            Just npc ->
-                Npc.view npc
+        , case model.character of
+            Just character ->
+                Html.div [ Html.Attributes.class "container" ] [ Character.view character ]
 
             Nothing ->
                 Html.text ""
