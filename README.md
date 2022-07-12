@@ -1,5 +1,5 @@
 # @ryannhg/dnd-npc-generator
-> an app to make DnD NPCs with Elm Land
+> an app to make DnD NPCs with [Elm Land](https://elm.land)
 
 ### overview
 
