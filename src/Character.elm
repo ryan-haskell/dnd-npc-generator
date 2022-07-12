@@ -17,6 +17,7 @@ import Mannerism exposing (Mannerism)
 import Name exposing (Name)
 import Race exposing (Race)
 import Random
+import Random.Char exposing (char)
 import Random.Extra
 import Talent exposing (Talent)
 
@@ -51,12 +52,12 @@ view character =
     let
         viewDetailList : List ( String, String ) -> Html msg
         viewDetailList items =
-            Html.ul []
+            Html.div []
                 (List.map viewDetailItem items)
 
         viewDetailItem : ( String, String ) -> Html msg
         viewDetailItem ( label, value ) =
-            Html.li []
+            Html.div []
                 [ Html.strong [] [ Html.text label ]
                 , Html.span [] [ Html.text (": " ++ value) ]
                 ]
@@ -74,14 +75,24 @@ view character =
                 ]
     in
     Html.div []
-        [ Html.h1 [] [ Html.text (Name.toString character.name) ]
-        , viewDetailList
-            [ ( "Race", Race.toString character.race )
-            , ( "Class", Class.toString character.class )
-            , ( "Alignment", Alignment.toString character.alignment )
-            , ( "Age", Age.toString character.age )
-            , ( "Height", Dimensions.toHeightString character.dimensions )
-            , ( "Weight", Dimensions.toWeightString character.dimensions )
+        [ Html.div [ Html.Attributes.class "row gap-32" ]
+            [ Html.div
+                [ Html.Attributes.class "avatar"
+                , Html.Attributes.style "background-image" "url('/images/fargrim-fireforge.png')"
+                ]
+                []
+            , Html.div []
+                [ Html.h1 [] [ Html.text (Name.toString character.name) ]
+                , viewDetailList
+                    [ ( "Gender", Gender.toString character.gender )
+                    , ( "Race", Race.toString character.race )
+                    , ( "Class", Class.toString character.class )
+                    , ( "Alignment", Alignment.toString character.alignment )
+                    , ( "Age", Age.toString character.age )
+                    , ( "Height", Dimensions.toHeightString character.dimensions )
+                    , ( "Weight", Dimensions.toWeightString character.dimensions )
+                    ]
+                ]
             ]
         , Html.div [ Html.Attributes.class "row gap-32" ]
             [ viewSections

@@ -7,53 +7,13 @@ import Random
 type Race
     = Dwarf DwarfSubrace
     | Elf ElfSubrace
-    | Halfling
+    | Halfling HalflingSubrace
     | Human
     | Dragonborn
-    | Gnome
+    | Gnome GnomeSubrace
     | HalfElf
     | HalfOrc
     | Tiefling
-
-
-toString : Race -> String
-toString race =
-    case race of
-        Dwarf HillDwarf ->
-            "Hill Dwarf"
-
-        Dwarf MountainDwarf ->
-            "Mountain Dwarf"
-
-        Elf HighElf ->
-            "High Elf"
-
-        Elf WoodElf ->
-            "Wood Elf"
-
-        Elf DarkElf ->
-            "Dark Elf (Drow)"
-
-        Halfling ->
-            "Halfling"
-
-        Human ->
-            "Human"
-
-        Dragonborn ->
-            "Dragonborn"
-
-        Gnome ->
-            "Gnome"
-
-        HalfElf ->
-            "Half-elf"
-
-        HalfOrc ->
-            "Half-orc"
-
-        Tiefling ->
-            "Tiefling"
 
 
 type PrimaryRace
@@ -79,6 +39,62 @@ type ElfSubrace
     | DarkElf
 
 
+type HalflingSubrace
+    = LightfootHalfling
+    | StoutHalfling
+
+
+type GnomeSubrace
+    = ForestGnome
+    | RockGnome
+
+
+toString : Race -> String
+toString race =
+    case race of
+        Dwarf HillDwarf ->
+            "Hill Dwarf"
+
+        Dwarf MountainDwarf ->
+            "Mountain Dwarf"
+
+        Elf HighElf ->
+            "High Elf"
+
+        Elf WoodElf ->
+            "Wood Elf"
+
+        Elf DarkElf ->
+            "Dark Elf (Drow)"
+
+        Halfling LightfootHalfling ->
+            "Lightfoot Halfling"
+
+        Halfling StoutHalfling ->
+            "Stout Halfling"
+
+        Human ->
+            "Human"
+
+        Dragonborn ->
+            "Dragonborn"
+
+        Gnome ForestGnome ->
+            "Forest Gnome"
+
+        Gnome RockGnome ->
+            "Rock Gnome"
+
+        HalfElf ->
+            "Half-elf"
+
+        HalfOrc ->
+            "Half-orc"
+
+        Tiefling ->
+            "Tiefling"
+
+
 generator : Random.Generator Race
 generator =
     primaryRaceGenerator
@@ -97,7 +113,8 @@ toRaceGenerator primaryRace =
                 elfSubRaceGenerator
 
         HalflingRace ->
-            Random.constant Halfling
+            Random.map Halfling
+                halflingSubRaceGenerator
 
         HumanRace ->
             Random.constant Human
@@ -106,7 +123,8 @@ toRaceGenerator primaryRace =
             Random.constant Dragonborn
 
         GnomeRace ->
-            Random.constant Gnome
+            Random.map Gnome
+                gnomeSubRaceGenerator
 
         HalfElfRace ->
             Random.constant HalfElf
@@ -120,19 +138,16 @@ toRaceGenerator primaryRace =
 
 primaryRaceGenerator : Random.Generator PrimaryRace
 primaryRaceGenerator =
-    Random.uniform DwarfRace [] |> Debug.log "TODO"
-
-
-
--- [ ElfRace
--- , HalflingRace
--- , HumanRace
--- , DragonbornRace
--- , GnomeRace
--- , HalfElfRace
--- , HalfOrcRace
--- , TieflingRace
--- ]
+    Random.uniform DwarfRace
+        [ ElfRace
+        , HalflingRace
+        , HumanRace
+        , DragonbornRace
+        , GnomeRace
+        , HalfElfRace
+        , HalfOrcRace
+        , TieflingRace
+        ]
 
 
 toAlignmentWeights : Race -> { social : Alignment.SocialWeights, moral : Alignment.MoralWeights }
@@ -156,8 +171,29 @@ toAgeRanges race =
         Dwarf _ ->
             { min = 50, max = 350 }
 
-        _ ->
-            { min = 20, max = 100 } |> Debug.log "TODO"
+        Elf _ ->
+            { min = 100, max = 750 }
+
+        Halfling _ ->
+            { min = 20, max = 150 }
+
+        Human ->
+            { min = 18, max = 100 }
+
+        Dragonborn ->
+            { min = 15, max = 80 }
+
+        Gnome _ ->
+            { min = 40, max = 450 }
+
+        HalfElf ->
+            { min = 20, max = 200 }
+
+        HalfOrc ->
+            { min = 14, max = 75 }
+
+        Tiefling ->
+            { min = 18, max = 120 }
 
 
 toDimensionBounds : Race -> { heightInInches : ( Int, Int ), weightInPounds : ( Int, Int ) }
@@ -281,4 +317,18 @@ elfSubRaceGenerator =
     Random.uniform HighElf
         [ WoodElf
         , DarkElf
+        ]
+
+
+halflingSubRaceGenerator : Random.Generator HalflingSubrace
+halflingSubRaceGenerator =
+    Random.uniform LightfootHalfling
+        [ StoutHalfling
+        ]
+
+
+gnomeSubRaceGenerator : Random.Generator GnomeSubrace
+gnomeSubRaceGenerator =
+    Random.uniform ForestGnome
+        [ RockGnome
         ]
