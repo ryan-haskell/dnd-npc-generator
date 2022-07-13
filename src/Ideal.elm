@@ -1,9 +1,11 @@
 module Ideal exposing
     ( Ideal
+    , codec
     , generator
     , toString
     )
 
+import Codec exposing (Codec)
 import Random
 
 
@@ -68,3 +70,17 @@ generator =
 toString : Ideal -> String
 toString (Ideal str) =
     str
+
+
+
+-- JSON
+
+
+codec : Codec Ideal
+codec =
+    Codec.custom
+        (\build (Ideal string) ->
+            build string
+        )
+        |> Codec.variant1 "Ideal" Ideal Codec.string
+        |> Codec.buildCustom

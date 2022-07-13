@@ -1,9 +1,11 @@
 module Name exposing
     ( Name
+    , codec
     , generator
     , toString
     )
 
+import Codec exposing (Codec)
 import Gender exposing (Gender)
 import Random
 
@@ -35,3 +37,17 @@ generator gender options =
 toString : Name -> String
 toString (Name first last) =
     first ++ " " ++ last
+
+
+
+-- JSON
+
+
+codec : Codec Name
+codec =
+    Codec.custom
+        (\constructor (Name first last) ->
+            constructor first last
+        )
+        |> Codec.variant2 "Name" Name Codec.string Codec.string
+        |> Codec.buildCustom

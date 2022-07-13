@@ -1,9 +1,11 @@
 module Talent exposing
     ( Talent
+    , codec
     , generator
     , toString
     )
 
+import Codec exposing (Codec)
 import Random
 
 
@@ -41,3 +43,17 @@ generator =
 toString : Talent -> String
 toString (Talent str) =
     str
+
+
+
+-- JSON
+
+
+codec : Codec Talent
+codec =
+    Codec.custom
+        (\build (Talent string) ->
+            build string
+        )
+        |> Codec.variant1 "Talent" Talent Codec.string
+        |> Codec.buildCustom

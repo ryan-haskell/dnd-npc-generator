@@ -1,14 +1,20 @@
 module Abilities exposing
     ( Abilities
+    , codec
     , generator
     , toString
     )
 
+import Codec exposing (Codec)
 import Random
 
 
 type Abilities
-    = Abilities { high : Ability, low : Ability }
+    = Abilities Internals
+
+
+type alias Internals =
+    { high : Ability, low : Ability }
 
 
 type Ability
@@ -65,3 +71,55 @@ fromAbilityToString ability =
 
         Charisma ->
             "Charisma"
+
+
+
+-- JSON
+
+
+codec : Codec Abilities
+codec =
+    Codec.custom
+        (\build (Abilities string) ->
+            build string
+        )
+        |> Codec.variant1 "Abilities"
+            Abilities
+            (Codec.object Internals
+                |> Codec.field "high" .high abilityCodec
+                |> Codec.field "low" .low abilityCodec
+                |> Codec.buildObject
+            )
+        |> Codec.buildCustom
+
+
+abilityCodec : Codec Ability
+abilityCodec =
+    Codec.custom
+        (\str dex con int wis cha value ->
+            case value of
+                Strength ->
+                    str
+
+                Dexterity ->
+                    dex
+
+                Constitution ->
+                    con
+
+                Intelligence ->
+                    int
+
+                Wisdom ->
+                    wis
+
+                Charisma ->
+                    cha
+        )
+        |> Codec.variant0 "Strength" Strength
+        |> Codec.variant0 "Dexterity" Dexterity
+        |> Codec.variant0 "Constitution" Constitution
+        |> Codec.variant0 "Intelligence" Intelligence
+        |> Codec.variant0 "Wisdom" Wisdom
+        |> Codec.variant0 "Charisma" Charisma
+        |> Codec.buildCustom

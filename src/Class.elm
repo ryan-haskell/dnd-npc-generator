@@ -1,10 +1,12 @@
 module Class exposing
     ( Class
+    , codec
     , generator
     , toHitDie
     , toString
     )
 
+import Codec exposing (Codec)
 import Random
 
 
@@ -118,3 +120,63 @@ toHitDie class =
 
         Wizard ->
             "d6"
+
+
+
+-- JSON
+
+
+codec : Codec Class
+codec =
+    Codec.custom
+        (\barb bard cler drui figh monk pala rang rogu sorc warl wiza value ->
+            case value of
+                Barbarian ->
+                    barb
+
+                Bard ->
+                    bard
+
+                Cleric ->
+                    cler
+
+                Druid ->
+                    drui
+
+                Fighter ->
+                    figh
+
+                Monk ->
+                    monk
+
+                Paladin ->
+                    pala
+
+                Ranger ->
+                    rang
+
+                Rogue ->
+                    rogu
+
+                Sorcerer ->
+                    sorc
+
+                Warlock ->
+                    warl
+
+                Wizard ->
+                    wiza
+        )
+        |> Codec.variant0 "Barbarian" Barbarian
+        |> Codec.variant0 "Bard" Bard
+        |> Codec.variant0 "Cleric" Cleric
+        |> Codec.variant0 "Druid" Druid
+        |> Codec.variant0 "Fighter" Fighter
+        |> Codec.variant0 "Monk" Monk
+        |> Codec.variant0 "Paladin" Paladin
+        |> Codec.variant0 "Ranger" Ranger
+        |> Codec.variant0 "Rogue" Rogue
+        |> Codec.variant0 "Sorcerer" Sorcerer
+        |> Codec.variant0 "Warlock" Warlock
+        |> Codec.variant0 "Wizard" Wizard
+        |> Codec.buildCustom

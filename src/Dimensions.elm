@@ -1,23 +1,21 @@
 module Dimensions exposing
     ( Dimensions
+    , codec
     , generator
     , toHeightString
     , toWeightString
     )
 
+import Codec exposing (Codec)
 import Random
 
 
 type Dimensions
-    = Dimensions HeightInInches WeightInPounds
+    = Dimensions Internals
 
 
-type alias HeightInInches =
-    Int
-
-
-type alias WeightInPounds =
-    Int
+type alias Internals =
+    { heightInInches : Int, weightInPounds : Int }
 
 
 generator :
@@ -33,13 +31,15 @@ generator bounds =
         ( minW, maxW ) =
             bounds.weightInPounds
     in
-    Random.map2 Dimensions
-        (Random.int minH maxH)
-        (Random.int minW maxW)
+    Random.map Dimensions
+        (Random.map2 Internals
+            (Random.int minH maxH)
+            (Random.int minW maxW)
+        )
 
 
 toHeightString : Dimensions -> String
-toHeightString (Dimensions heightInInches _) =
+toHeightString (Dimensions { heightInInches }) =
     String.fromInt (heightInInches // 12)
         ++ "' "
         ++ String.fromInt (modBy 12 heightInInches)
@@ -47,5 +47,25 @@ toHeightString (Dimensions heightInInches _) =
 
 
 toWeightString : Dimensions -> String
-toWeightString (Dimensions _ weightInPounds) =
+toWeightString (Dimensions { weightInPounds }) =
     String.fromInt weightInPounds ++ " lbs"
+
+
+
+-- JSON
+
+
+codec : Codec Dimensions
+codec =
+    Codec.custom
+        (\build (Dimensions internals) ->
+            build internals
+        )
+        |> Codec.variant1 "Dimensions"
+            Dimensions
+            (Codec.object Internals
+                |> Codec.field "heightInInches" .heightInInches Codec.int
+                |> Codec.field "weightInPounds" .weightInPounds Codec.int
+                |> Codec.buildObject
+            )
+        |> Codec.buildCustom

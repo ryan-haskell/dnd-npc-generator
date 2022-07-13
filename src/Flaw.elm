@@ -1,9 +1,11 @@
 module Flaw exposing
     ( Flaw
+    , codec
     , generator
     , toString
     )
 
+import Codec exposing (Codec)
 import Random
 
 
@@ -33,3 +35,17 @@ generator =
 toString : Flaw -> String
 toString (Flaw str) =
     str
+
+
+
+-- JSON
+
+
+codec : Codec Flaw
+codec =
+    Codec.custom
+        (\build (Flaw string) ->
+            build string
+        )
+        |> Codec.variant1 "Flaw" Flaw Codec.string
+        |> Codec.buildCustom

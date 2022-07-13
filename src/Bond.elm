@@ -1,9 +1,11 @@
 module Bond exposing
     ( Bond
+    , codec
     , generator
     , toString
     )
 
+import Codec exposing (Codec)
 import Random
 
 
@@ -30,3 +32,17 @@ generator =
 toString : Bond -> String
 toString (Bond str) =
     str
+
+
+
+-- JSON
+
+
+codec : Codec Bond
+codec =
+    Codec.custom
+        (\build (Bond string) ->
+            build string
+        )
+        |> Codec.variant1 "Bond" Bond Codec.string
+        |> Codec.buildCustom

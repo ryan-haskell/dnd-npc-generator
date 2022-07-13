@@ -1,9 +1,11 @@
 module InteractionTrait exposing
     ( InteractionTrait
+    , codec
     , generator
     , toString
     )
 
+import Codec exposing (Codec)
 import Random
 
 
@@ -33,3 +35,17 @@ generator =
 toString : InteractionTrait -> String
 toString (InteractionTrait str) =
     str
+
+
+
+-- JSON
+
+
+codec : Codec InteractionTrait
+codec =
+    Codec.custom
+        (\build (InteractionTrait string) ->
+            build string
+        )
+        |> Codec.variant1 "InteractionTrait" InteractionTrait Codec.string
+        |> Codec.buildCustom

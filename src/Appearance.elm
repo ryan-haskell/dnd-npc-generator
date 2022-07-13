@@ -1,9 +1,12 @@
 module Appearance exposing
     ( Appearance
+    , codec
     , generator
     , toString
     )
 
+import Codec exposing (Codec)
+import Gender exposing (Gender(..))
 import Random
 
 
@@ -41,3 +44,17 @@ generator =
 toString : Appearance -> String
 toString (Appearance str) =
     str
+
+
+
+-- JSON
+
+
+codec : Codec Appearance
+codec =
+    Codec.custom
+        (\build (Appearance string) ->
+            build string
+        )
+        |> Codec.variant1 "Appearance" Appearance Codec.string
+        |> Codec.buildCustom

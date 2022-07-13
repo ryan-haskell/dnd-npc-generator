@@ -1,6 +1,16 @@
-module Race exposing (Race, generator, toAgeRanges, toAlignmentWeights, toDimensionBounds, toNameGenerators, toString)
+module Race exposing
+    ( Race
+    , codec
+    , generator
+    , toAgeRanges
+    , toAlignmentWeights
+    , toDimensionBounds
+    , toNameGenerators
+    , toString
+    )
 
 import Alignment
+import Codec exposing (Codec)
 import Random
 
 
@@ -8,7 +18,7 @@ type Race
     = Dwarf DwarfSubrace
     | Elf ElfSubrace
     | Halfling HalflingSubrace
-    | Human
+    | Human HumanSubrace
     | Dragonborn
     | Gnome GnomeSubrace
     | HalfElf
@@ -44,6 +54,12 @@ type HalflingSubrace
     | StoutHalfling
 
 
+type HumanSubrace
+    = Calishite
+    | Chondathan
+    | Damaran
+
+
 type GnomeSubrace
     = ForestGnome
     | RockGnome
@@ -73,7 +89,7 @@ toString race =
         Halfling StoutHalfling ->
             "Stout Halfling"
 
-        Human ->
+        Human _ ->
             "Human"
 
         Dragonborn ->
@@ -117,7 +133,8 @@ toRaceGenerator primaryRace =
                 halflingSubRaceGenerator
 
         HumanRace ->
-            Random.constant Human
+            Random.map Human
+                humanSubraceGenerator
 
         DragonbornRace ->
             Random.constant Dragonborn
@@ -158,11 +175,45 @@ toAlignmentWeights race =
             , moral = { good = 4, neutral = 2, evil = 1 }
             }
 
-        _ ->
+        Dragonborn ->
             { social = { lawful = 1, neutral = 1, chaotic = 1 }
             , moral = { good = 1, neutral = 1, evil = 1 }
             }
-                |> Debug.log "TODO"
+
+        Elf _ ->
+            { social = { lawful = 1, neutral = 1, chaotic = 1 }
+            , moral = { good = 1, neutral = 1, evil = 1 }
+            }
+
+        Halfling _ ->
+            { social = { lawful = 1, neutral = 1, chaotic = 1 }
+            , moral = { good = 1, neutral = 1, evil = 1 }
+            }
+
+        Human _ ->
+            { social = { lawful = 1, neutral = 1, chaotic = 1 }
+            , moral = { good = 1, neutral = 1, evil = 1 }
+            }
+
+        Gnome _ ->
+            { social = { lawful = 1, neutral = 1, chaotic = 1 }
+            , moral = { good = 1, neutral = 1, evil = 1 }
+            }
+
+        HalfElf ->
+            { social = { lawful = 1, neutral = 1, chaotic = 1 }
+            , moral = { good = 1, neutral = 1, evil = 1 }
+            }
+
+        HalfOrc ->
+            { social = { lawful = 1, neutral = 1, chaotic = 1 }
+            , moral = { good = 1, neutral = 1, evil = 1 }
+            }
+
+        Tiefling ->
+            { social = { lawful = 1, neutral = 1, chaotic = 1 }
+            , moral = { good = 1, neutral = 1, evil = 1 }
+            }
 
 
 toAgeRanges : Race -> { min : Int, max : Int }
@@ -177,7 +228,7 @@ toAgeRanges race =
         Halfling _ ->
             { min = 20, max = 150 }
 
-        Human ->
+        Human _ ->
             { min = 18, max = 100 }
 
         Dragonborn ->
@@ -208,7 +259,10 @@ toDimensionBounds race =
             { heightInInches = ( 60, 78 )
             , weightInPounds = ( 125, 250 )
             }
-                |> Debug.log "TODO"
+
+
+
+-- |> Debug.log "TODO"
 
 
 toNameGenerators :
@@ -297,12 +351,65 @@ toNameGenerators race =
                     ]
             }
 
-        _ ->
-            { maleFirstNameGenerator = Random.constant "???"
-            , femaleFirstNameGenerator = Random.constant "???"
-            , lastNameGenerator = Random.constant "???"
+        Elf _ ->
+            { maleFirstNameGenerator = Random.uniform "Adran" [ "Aelar", "Aramil" ]
+            , femaleFirstNameGenerator = Random.uniform "Adrie" [ "Althaea" ]
+            , lastNameGenerator = Random.uniform "Amakiir" [ "Amastacia", "Galanodel" ]
             }
-                |> Debug.log "TODO"
+
+        Halfling _ ->
+            { maleFirstNameGenerator = Random.uniform "Alton" [ "Cade", "Eldon", "Finnan", "Garret" ]
+            , femaleFirstNameGenerator = Random.uniform "Andry" [ "Bree", "Cora", "Euphemia", "Kithri" ]
+            , lastNameGenerator = Random.uniform "Brushgather" [ "Goodbarrel", "High-hill", "Tealeaf" ]
+            }
+
+        Human Calishite ->
+            { maleFirstNameGenerator = Random.uniform "Aseir" [ "Bardeid", "Haseid", "Khemed", "Mehmen" ]
+            , femaleFirstNameGenerator = Random.uniform "Atala" [ "Ceidil", "Hama", "Jasmal", "Meilil", "Seipora", "Yasheira" ]
+            , lastNameGenerator = Random.uniform "Basha" [ "Dumein", "Jassan", "Khalid", "Mostana" ]
+            }
+
+        Human Chondathan ->
+            { maleFirstNameGenerator = Random.uniform "Darvin" [ "Dorn", "Evendur", "Gorstag", "Grim" ]
+            , femaleFirstNameGenerator = Random.uniform "Arveene" [ "Esvele", "Jhessail", "Kerri", "Lureene" ]
+            , lastNameGenerator = Random.uniform "Amblecrown" [ "Buckman", "Dundragon", "Evenwood" ]
+            }
+
+        Human Damaran ->
+            { maleFirstNameGenerator = Random.uniform "Bor" [ "Fodel", "Glar", "Grigor", "Igan" ]
+            , femaleFirstNameGenerator = Random.uniform "Alethra" [ "Kara", "Katernin", "Mara", "Natali" ]
+            , lastNameGenerator = Random.uniform "Bersk" [ "Chernin", "Dotsk", "Kulenov", "Marsk" ]
+            }
+
+        Dragonborn ->
+            { maleFirstNameGenerator = Random.uniform "Arjhan" [ "Balasar", "Donaar", "Ghesh", "Kriv" ]
+            , femaleFirstNameGenerator = Random.uniform "Akra" [ "Biri", "Daar", "Harann", "Jheri" ]
+            , lastNameGenerator = Random.uniform "Clethtinthiallor" [ "Daardendrian", "Fenkenkabradon", "Kimbatuul", "Myastan" ]
+            }
+
+        Gnome _ ->
+            { maleFirstNameGenerator = Random.uniform "Alston" [ "Boddynock", "Dimble", "Erky", "Fonkin" ]
+            , femaleFirstNameGenerator = Random.uniform "Bimpnottin" [ "Caramip", "Donella", "Ellyjobell", "Loopmottin" ]
+            , lastNameGenerator = Random.uniform "Beren" [ "Daergel", "Folkor", "Garrick", "Nackle" ]
+            }
+
+        HalfElf ->
+            { maleFirstNameGenerator = Random.uniform "Darvin" [ "Dorn", "Evendur", "Gorstag", "Grim" ]
+            , femaleFirstNameGenerator = Random.uniform "Arveene" [ "Esvele", "Jhessail", "Kerri", "Lureene" ]
+            , lastNameGenerator = Random.uniform "Amblecrown" [ "Buckman", "Dundragon", "Evenwood" ]
+            }
+
+        HalfOrc ->
+            { maleFirstNameGenerator = Random.uniform "Dench" [ "Feng", "Gell", "Holg", "Imsh" ]
+            , femaleFirstNameGenerator = Random.uniform "Baggi" [ "Emen", "Kansif", "Myev", "Ovak" ]
+            , lastNameGenerator = Random.uniform "Ront" [ "Shump", "Volen", "Sutha" ]
+            }
+
+        Tiefling ->
+            { maleFirstNameGenerator = Random.uniform "Akmenos" [ "Barakas", "Damakos", "Ekemon", "Iados" ]
+            , femaleFirstNameGenerator = Random.uniform "Akta" [ "Bryseis", "Criella", "Ea", "Kallista" ]
+            , lastNameGenerator = Random.uniform "Carrion" [ "Despair", "Glory", "Nowhere" ]
+            }
 
 
 dwarfSubRaceGenerator : Random.Generator DwarfSubrace
@@ -327,8 +434,152 @@ halflingSubRaceGenerator =
         ]
 
 
+humanSubraceGenerator : Random.Generator HumanSubrace
+humanSubraceGenerator =
+    Random.uniform Calishite
+        [ Chondathan
+        , Damaran
+        ]
+
+
 gnomeSubRaceGenerator : Random.Generator GnomeSubrace
 gnomeSubRaceGenerator =
     Random.uniform ForestGnome
         [ RockGnome
         ]
+
+
+
+-- JSON
+
+
+codec : Codec Race
+codec =
+    Codec.custom
+        (\dwa elf halfl hum dra gno halfe halfo tie value ->
+            case value of
+                Dwarf subrace ->
+                    dwa subrace
+
+                Elf subrace ->
+                    elf subrace
+
+                Halfling subrace ->
+                    halfl subrace
+
+                Human subrace ->
+                    hum subrace
+
+                Dragonborn ->
+                    dra
+
+                Gnome subrace ->
+                    gno subrace
+
+                HalfElf ->
+                    halfe
+
+                HalfOrc ->
+                    halfo
+
+                Tiefling ->
+                    tie
+        )
+        |> Codec.variant1 "Dwarf" Dwarf dwarfSubraceCodec
+        |> Codec.variant1 "Elf" Elf elfSubraceCodec
+        |> Codec.variant1 "Halfling" Halfling halflingSubraceCodec
+        |> Codec.variant1 "Human" Human humanSubraceCodec
+        |> Codec.variant0 "Dragonborn" Dragonborn
+        |> Codec.variant1 "Gnome" Gnome gnomeSubraceCodec
+        |> Codec.variant0 "HalfElf" HalfElf
+        |> Codec.variant0 "HalfOrc" HalfOrc
+        |> Codec.variant0 "Tiefling" Tiefling
+        |> Codec.buildCustom
+
+
+dwarfSubraceCodec : Codec DwarfSubrace
+dwarfSubraceCodec =
+    Codec.custom
+        (\hillDwarf mountainDwarf value ->
+            case value of
+                HillDwarf ->
+                    hillDwarf
+
+                MountainDwarf ->
+                    mountainDwarf
+        )
+        |> Codec.variant0 "HillDwarf" HillDwarf
+        |> Codec.variant0 "MountainDwarf" MountainDwarf
+        |> Codec.buildCustom
+
+
+elfSubraceCodec : Codec ElfSubrace
+elfSubraceCodec =
+    Codec.custom
+        (\high wood dark value ->
+            case value of
+                HighElf ->
+                    high
+
+                WoodElf ->
+                    wood
+
+                DarkElf ->
+                    dark
+        )
+        |> Codec.variant0 "HighElf" HighElf
+        |> Codec.variant0 "WoodElf" WoodElf
+        |> Codec.variant0 "DarkElf" DarkElf
+        |> Codec.buildCustom
+
+
+halflingSubraceCodec : Codec HalflingSubrace
+halflingSubraceCodec =
+    Codec.custom
+        (\lightfoothalfling stouthalfling value ->
+            case value of
+                LightfootHalfling ->
+                    lightfoothalfling
+
+                StoutHalfling ->
+                    stouthalfling
+        )
+        |> Codec.variant0 "LighfootHalfling" LightfootHalfling
+        |> Codec.variant0 "StoutHalfing" StoutHalfling
+        |> Codec.buildCustom
+
+
+humanSubraceCodec : Codec HumanSubrace
+humanSubraceCodec =
+    Codec.custom
+        (\calishite chondathan damaran value ->
+            case value of
+                Calishite ->
+                    calishite
+
+                Chondathan ->
+                    chondathan
+
+                Damaran ->
+                    damaran
+        )
+        |> Codec.variant0 "Calishite" Calishite
+        |> Codec.variant0 "Chondathan" Chondathan
+        |> Codec.variant0 "Damaran" Damaran
+        |> Codec.buildCustom
+
+
+gnomeSubraceCodec : Codec GnomeSubrace
+gnomeSubraceCodec =
+    Codec.custom
+        (\forestGnome rockGnome value ->
+            case value of
+                ForestGnome ->
+                    forestGnome
+
+                RockGnome ->
+                    rockGnome
+        )
+        |> Codec.variant0 "ForestGnome" ForestGnome
+        |> Codec.variant0 "RockGnome" RockGnome
+        |> Codec.buildCustom

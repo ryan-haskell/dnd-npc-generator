@@ -1,9 +1,11 @@
 module Mannerism exposing
     ( Mannerism
+    , codec
     , generator
     , toString
     )
 
+import Codec exposing (Codec)
 import Random
 
 
@@ -41,3 +43,17 @@ generator =
 toString : Mannerism -> String
 toString (Mannerism str) =
     str
+
+
+
+-- JSON
+
+
+codec : Codec Mannerism
+codec =
+    Codec.custom
+        (\build (Mannerism string) ->
+            build string
+        )
+        |> Codec.variant1 "Mannerism" Mannerism Codec.string
+        |> Codec.buildCustom

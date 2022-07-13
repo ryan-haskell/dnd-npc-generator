@@ -1,9 +1,11 @@
 module Age exposing
     ( Age
+    , codec
     , generator
     , toString
     )
 
+import Codec exposing (Codec)
 import Random
 
 
@@ -47,3 +49,20 @@ toString age =
             age
     in
     toAgeDescription age ++ " (" ++ String.fromInt ageValue ++ " years old)"
+
+
+codec : Codec Age
+codec =
+    Codec.custom
+        (\build (Age bounds value) ->
+            build bounds value
+        )
+        |> Codec.variant2 "Age"
+            Age
+            (Codec.object Bounds
+                |> Codec.field "min" .min Codec.int
+                |> Codec.field "max" .max Codec.int
+                |> Codec.buildObject
+            )
+            Codec.int
+        |> Codec.buildCustom
